@@ -10,8 +10,8 @@ The usage is very simple:
 etc...
 
 ## Dependencies
-1. portage
-1. eix or portage-utils
+1. Portage
+1. eix or Portage-Utils
     * eix is recommended because it is faster and has more details.
 
 ## (Un)Installation
