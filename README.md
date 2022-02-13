@@ -6,11 +6,13 @@ The usage is very simple:
 * `$ dmerge --depclean` or `$ dmerge -c` – search for and deplean packages
 * `$ dmerge --unmerge` or `$dmerge -C` – search for and unmerge packages
 * `$ dmerge <atom>` – emerge \<atom\>, search for and emege packages
+
 etc...
 
 ## Dependencies
-1. ffmpeg
-1. xrandr
+1. portage
+1. eix or portage-utils
+    * eix is recommended because it is faster and has more details.
 
 ## (Un)Installation
 ### Universal
