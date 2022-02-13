@@ -1,0 +1,5 @@
+#!/bin/sh
+
+{ [ "$1" = "--depclean" -o "$1" = "-c" ] && eix --color=never --selected -Ic --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} doas emerge -q --verbose=n $@ {}; } ||
+{ [ "$1" = "--unmerge" -o "$1" = "-C" ] && eix --color=never -Ic --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} doas emerge -q --verbose=n $@ {}; } ||
+{ eix --color=never -c --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} doas emerge -q --verbose=n $@ {}; }
