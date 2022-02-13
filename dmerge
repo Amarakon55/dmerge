@@ -1,5 +1,18 @@
 #!/bin/sh
 
-{ [ "$1" = "--depclean" -o "$1" = "-c" ] && eix --color=never --selected -Ic --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} doas emerge -q --verbose=n $@ {}; } ||
-{ [ "$1" = "--unmerge" -o "$1" = "-C" ] && eix --color=never -Ic --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} doas emerge -q --verbose=n $@ {}; } ||
-{ eix --color=never -c --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} doas emerge -q --verbose=n $@ {}; }
+if [ "$(command -v eix | wc -l)" -ge 1 ]; then
+    if [ "$1" = "--depclean" -o "$1" = "-c" ]; then
+	eix --color=never --selected -Ic --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} doas emerge $@ {}
+    elif [ "$1" = "--unmerge" -o "$1" = "-C" ]; then
+	eix --color=never -Ic --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} doas emerge $@ {}
+    else
+	eix --color=never -c --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} doas emerge $@ {}
+    fi
+elif [ "$(command -v q | wc -l)" -ge 1 ]; then
+    if [ "$1" = "--depclean" -o "$1" = "-c" -o "$1" = "--unmerge" -o "$1" = "-C" ] ; then
+	qlist -CIq | dmenu -i -l 10 | xargs -I {} doas emerge $@ {}
+    else
+	qsearch -Caq | dmenu -i -l 10 | cut -d ':' -f1 | xargs -I {} doas emerge $@ {}
+    fi
+else
+    echo "You don't have neither eix nor portage-utils installed. One of them is required. Install one of them."
