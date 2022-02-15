@@ -16,3 +16,4 @@ elif [ "$(command -v q | wc -l)" -ge 1 ]; then
     fi
 else
     echo "You don't have neither eix nor portage-utils installed. One of them is required. Install one of them."
+fi
