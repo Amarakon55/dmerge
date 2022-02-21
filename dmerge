@@ -1,19 +1,56 @@
 #!/bin/sh
 
-if [ "$(command -v eix | wc -l)" -ge 1 ]; then
-    if [ "$1" = "--depclean" -o "$1" = "-c" ]; then
-	eix --color=never --selected -Ic --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} doas emerge $@ {}
-    elif [ "$1" = "--unmerge" -o "$1" = "-C" ]; then
-	eix --color=never -Ic --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} doas emerge $@ {}
+main() {
+    parse_opts "$@"
+
+    if [ -n "$help" ]; then
+	help
+    elif [ "$(command -v eix | wc -l)" -ge 1 ]; then
+	if [ -n "$depclean" ]; then
+	    eix --color=never --selected -Ic --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} doas emerge $@ {}
+	elif [ -n "$unmerge" ]; then
+	    eix --color=never -Ic --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} doas emerge $@ {}
+	else
+	    eix --color=never -c --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} doas emerge $@ {}
+	fi
+    elif [ "$(command -v q | wc -l)" -ge 1 ]; then
+	if [ -n "$depclean" -o -n "$unmerge" ] ; then
+	    qlist -CIq | dmenu -i -l 10 | xargs -I {} doas emerge $@ {}
+	else
+	    qsearch -Caq | dmenu -i -l 10 | cut -d ':' -f1 | xargs -I {} doas emerge $@ {}
+	fi
     else
-	eix --color=never -c --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} doas emerge $@ {}
+	printf "You don't have neither eix nor portage-utils installed. One of them is required. Install one of them.\n"
     fi
-elif [ "$(command -v q | wc -l)" -ge 1 ]; then
-    if [ "$1" = "--depclean" -o "$1" = "-c" -o "$1" = "--unmerge" -o "$1" = "-C" ] ; then
-	qlist -CIq | dmenu -i -l 10 | xargs -I {} doas emerge $@ {}
-    else
-	qsearch -Caq | dmenu -i -l 10 | cut -d ':' -f1 | xargs -I {} doas emerge $@ {}
-    fi
-else
-    echo "You don't have neither eix nor portage-utils installed. One of them is required. Install one of them."
-fi
+}
+
+help() {
+    printf "Usage:	dmerge [options] [atoms]
+
+Any emerge options will work. Any emerge atoms will also work.\n"
+}
+
+parse_opts() {
+    while [ $# -gt 0 ]; do
+        key="$1"
+        case $key in
+        -h|--help)
+            help=1
+            shift
+            ;;
+        -c|--depclean)
+            depclean=1
+            shift
+            ;;
+	-C|--unmerge)
+	    unmerge=1
+	    shift
+	    ;;
+	*)
+	    shift
+	    ;;
+	esac
+    done
+}
+
+main "$@"
