@@ -7,17 +7,17 @@ main() {
 	help
     elif [ "$(command -v eix | wc -l)" -ge 1 ]; then
 	if [ -n "$depclean" ]; then
-	    eix --color=never --selected -Ic --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} doas emerge $@ {}
+	    eix --color=never --selected -Ic --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} emerge $@ {}
 	elif [ -n "$unmerge" ]; then
-	    eix --color=never -Ic --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} doas emerge $@ {}
+	    eix --color=never -Ic --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} emerge $@ {}
 	else
-	    eix --color=never -c --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} doas emerge $@ {}
+	    eix --color=never -c --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} emerge $@ {}
 	fi
     elif [ "$(command -v q | wc -l)" -ge 1 ]; then
 	if [ -n "$depclean" -o -n "$unmerge" ] ; then
-	    qlist -CIq | dmenu -i -l 10 | xargs -I {} doas emerge $@ {}
+	    qlist -CIq | dmenu -i -l 10 | xargs -I {} emerge $@ {}
 	else
-	    qsearch -Caq | dmenu -i -l 10 | cut -d ':' -f1 | xargs -I {} doas emerge $@ {}
+	    qsearch -Caq | dmenu -i -l 10 | cut -d ':' -f1 | xargs -I {} emerge $@ {}
 	fi
     else
 	printf "You don't have neither eix nor portage-utils installed. One of them is required. Install one of them.\n"
