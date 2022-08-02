@@ -1,56 +1,46 @@
 #!/bin/sh
 
 main() {
-    parse_opts "$@"
+	parse_opts "$@"
 
-    if [ -n "$help" ]; then
-	help
-    elif [ "$(command -v eix | wc -l)" -ge 1 ]; then
-	if [ -n "$depclean" ]; then
-	    eix --color=never --selected -Ic --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} emerge $@ {}
-	elif [ -n "$unmerge" ]; then
-	    eix --color=never -Ic --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} emerge $@ {}
+	if [ "$(command -v eix | wc -l)" -ge 1 ]; then
+		if [ -n "$depclean" ]; then
+			eix --color=never --selected -Ic --pure-packages |
+				dmenu -i -l 10 | cut -d ' ' -f2 | xargs emerge $@
+		elif [ -n "$unmerge" ]; then
+			eix --color=never -Ic --pure-packages |
+				dmenu -i -l 10 | cut -d ' ' -f2 | xargs emerge $@
+		else
+			eix --color=never -c --pure-packages |
+				dmenu -i -l 10 | cut -d ' ' -f2 | xargs emerge $@
+		fi
+	elif [ "$(command -v q | wc -l)" -ge 1 ]; then
+		if [ -n "$depclean" -o -n "$unmerge" ] ; then
+			qlist -CIq | dmenu -i -l 10 | xargs emerge $@
+		else
+			qsearch -Caq | dmenu -i -l 10 | cut -d ':' -f1 | xargs emerge $@
+		fi
 	else
-	    eix --color=never -c --pure-packages | dmenu -i -l 10 | cut -d ' ' -f2 | xargs -I {} emerge $@ {}
+		printf '%s\n' "You have neither eix nor portage-utils installed."
 	fi
-    elif [ "$(command -v q | wc -l)" -ge 1 ]; then
-	if [ -n "$depclean" -o -n "$unmerge" ] ; then
-	    qlist -CIq | dmenu -i -l 10 | xargs -I {} emerge $@ {}
-	else
-	    qsearch -Caq | dmenu -i -l 10 | cut -d ':' -f1 | xargs -I {} emerge $@ {}
-	fi
-    else
-	printf "You don't have neither eix nor portage-utils installed. One of them is required. Install one of them.\n"
-    fi
 }
 
 help() {
-    printf "Usage:	dmerge [options] [atoms]
+	printf 'Usage:\t%s' "dmerge [options] [atoms]
 
-Any emerge options will work. Any emerge atoms will also work.\n"
-}
+Any emerge options and atoms will work.
+"; }
 
 parse_opts() {
-    while [ $# -gt 0 ]; do
-        key="$1"
-        case $key in
-        -h|--help)
-            help=1
-            shift
-            ;;
-        -c|--depclean)
-            depclean=1
-            shift
-            ;;
-	-C|--unmerge)
-	    unmerge=1
-	    shift
-	    ;;
-	*)
-	    shift
-	    ;;
-	esac
-    done
+	while [ $# -gt 0 ]; do
+		key="$1"
+		case $key in
+			-h|--help) help ; exit 0 ;;
+			-c|--depclean) depclean=1 ; shift ;;
+			-C|--unmerge) unmerge=1 ; shift ;;
+			*) shift ;;
+		esac
+	done
 }
 
 main "$@"
